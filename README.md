@@ -9,15 +9,19 @@ substituted via placeholders.
 > `validate`) is implemented and tested end-to-end. Template content currently
 > covers a representative subset for each target (see [CHANGELOG.md](CHANGELOG.md)
 > for what's migrated so far vs. pending).
+>
+> This repository is public for visibility, but the code is proprietary
+> Capgemini IP — see [LICENSE](LICENSE). Public visibility does not grant any
+> right to reuse, copy, or redistribute this code.
 
 ---
 
 ## Prerequisites
 
 - Node.js 18 or later.
-- Read access to the `petermuller-capgemini` GitHub account/packages (private
-  registry) if installing from GitHub Packages rather than from a local
-  tarball.
+- A GitHub account authenticated to GitHub Packages (`npm.pkg.github.com`
+  always requires an authenticated npm login to install from it, even for
+  public packages).
 
 ---
 
@@ -92,18 +96,18 @@ CLI argument  >  --env-file <path>  >  project .sf-ai-pack.env  >  built-in defa
 
 ### All CLI options
 
-| Flag | Purpose |
-|---|---|
-| `--target github\|claude\|both` | Which asset set(s) to install/update |
-| `--project-dir <path>` | Target Salesforce DX project (default: cwd) |
-| `--env-file <path>` | Load a specific preset file instead of the project default |
-| `--merge-strategy skip\|overwrite\|backup\|fail` | How to handle files that already exist |
-| `--dry-run` | Report what would happen without writing anything |
-| `--project-name`, `--project-description`, `--team-name` | `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{TEAM_NAME}}` |
-| `--apex-prefix`, `--lwc-prefix`, `--flow-prefix`, `--subflow-prefix`, `--config-prefix` | Naming convention placeholders |
-| `--test-data-factory`, `--logger-class`, `--logger-factory`, `--utility-controller`, `--default-psg` | Shared utility class name placeholders |
-| `--min-coverage`, `--target-coverage`, `--sf-api-version` | Quality gate placeholders |
-| `--salesforce-clouds`, `--external-integrations`, `--cicd-tool`, `--work-item-tool` | Platform context placeholders |
+| Flag                                                                                                 | Purpose                                                        |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `--target github\|claude\|both`                                                                      | Which asset set(s) to install/update                           |
+| `--project-dir <path>`                                                                               | Target Salesforce DX project (default: cwd)                    |
+| `--env-file <path>`                                                                                  | Load a specific preset file instead of the project default     |
+| `--merge-strategy skip\|overwrite\|backup\|fail`                                                     | How to handle files that already exist                         |
+| `--dry-run`                                                                                          | Report what would happen without writing anything              |
+| `--project-name`, `--project-description`, `--team-name`                                             | `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, `{{TEAM_NAME}}` |
+| `--apex-prefix`, `--lwc-prefix`, `--flow-prefix`, `--subflow-prefix`, `--config-prefix`              | Naming convention placeholders                                 |
+| `--test-data-factory`, `--logger-class`, `--logger-factory`, `--utility-controller`, `--default-psg` | Shared utility class name placeholders                         |
+| `--min-coverage`, `--target-coverage`, `--sf-api-version`                                            | Quality gate placeholders                                      |
+| `--salesforce-clouds`, `--external-integrations`, `--cicd-tool`, `--work-item-tool`                  | Platform context placeholders                                  |
 
 Run `sf-ai-pack --help` any time for the short version of this list.
 
@@ -111,12 +115,12 @@ Run `sf-ai-pack --help` any time for the short version of this list.
 
 ## Merge strategies (existing-file handling)
 
-| Strategy | Behavior |
-|---|---|
-| `skip` (default for `install`) | Leaves the existing file untouched |
-| `overwrite` | Replaces the file with the freshly rendered template |
-| `backup` | Copies the existing file to `<file>.bak.<timestamp>`, then writes the new version |
-| `fail` | Stops immediately with a clear error, no files are touched |
+| Strategy                       | Behavior                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| `skip` (default for `install`) | Leaves the existing file untouched                                                |
+| `overwrite`                    | Replaces the file with the freshly rendered template                              |
+| `backup`                       | Copies the existing file to `<file>.bak.<timestamp>`, then writes the new version |
+| `fail`                         | Stops immediately with a clear error, no files are touched                        |
 
 `.claude/settings.json` is a special case: regardless of merge strategy, its
 `permissions.allow` list and `hooks` are **merged** into the existing file
@@ -203,7 +207,7 @@ does not track or remove them for you.
   that should trigger a release.
 - Publishing is driven by creating a GitHub Release whose tag matches the
   `version` in `package.json`. The `publish.yml` workflow then runs `npm
-  publish` using the repository's own `GITHUB_TOKEN` (no personal access
+publish` using the repository's own `GITHUB_TOKEN` (no personal access
   token required in CI).
 
 ---
@@ -226,13 +230,13 @@ does not track or remove them for you.
 
 ## Troubleshooting
 
-| Symptom | Likely cause / fix |
-|---|---|
-| `npm error 404 ... does not exist under owner` | Package not yet published, or you lack `read:packages` access — check `~/.npmrc` and your PAT scopes |
-| `ENEEDAUTH` from `npm whoami --registry=https://npm.pkg.github.com` | `~/.npmrc` auth token missing/expired — re-export `GITHUB_PACKAGES_TOKEN` and re-check `.npmrc` |
-| `validate` reports unresolved placeholders | Re-run `install`/`update` with the missing `--xxx-prefix`/`--xxx-name` flag, or add it to `.sf-ai-pack.env` |
-| File already exists and merge-strategy is "fail" | Expected behavior of the `fail` strategy — re-run with `backup` or `overwrite`, or resolve manually |
-| `update` didn't change anything | Check whether you passed `--merge-strategy skip` explicitly, or whether `--dry-run` was set |
+| Symptom                                                             | Likely cause / fix                                                                                          |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm error 404 ... does not exist under owner`                      | Package not yet published, or you lack `read:packages` access — check `~/.npmrc` and your PAT scopes        |
+| `ENEEDAUTH` from `npm whoami --registry=https://npm.pkg.github.com` | `~/.npmrc` auth token missing/expired — re-export `GITHUB_PACKAGES_TOKEN` and re-check `.npmrc`             |
+| `validate` reports unresolved placeholders                          | Re-run `install`/`update` with the missing `--xxx-prefix`/`--xxx-name` flag, or add it to `.sf-ai-pack.env` |
+| File already exists and merge-strategy is "fail"                    | Expected behavior of the `fail` strategy — re-run with `backup` or `overwrite`, or resolve manually         |
+| `update` didn't change anything                                     | Check whether you passed `--merge-strategy skip` explicitly, or whether `--dry-run` was set                 |
 
 ---
 
