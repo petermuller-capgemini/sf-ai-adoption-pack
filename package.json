@@ -1,6 +1,6 @@
 {
   "name": "@petermuller-capgemini/sf-ai-adoption-pack",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI installer for Salesforce AI adoption packs (GitHub Copilot and Claude Code assets) into an existing Salesforce DX project.",
   "author": "Peter Muller <peter.muller@capgemini.com>",
   "type": "module",

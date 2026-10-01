@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-10-01
+
+### Added
+
+- Full Claude skill set in `templates/claude/skills` (previously only
+  `apex-standards` and `security-standards`).
+- `.env.example` is now installed alongside the other assets.
+- Placeholder defaults for values not supplied at install time.
+
 ## [0.1.0] - 2026-10-01
 
 ### Added
