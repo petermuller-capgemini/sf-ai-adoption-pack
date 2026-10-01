@@ -8,6 +8,8 @@ import { TARGET_DIRS } from "./constants.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const TEMPLATES_ROOT = path.join(__dirname, "..", "templates");
+const ENV_EXAMPLE_SOURCE = path.join(__dirname, "..", ".env.example");
+const ENV_EXAMPLE_DEST_NAME = ".sf-ai-pack.env.example";
 
 export async function fileExists(targetPath) {
   try {
@@ -121,5 +123,42 @@ export async function runInstall(config) {
   for (const target of targets) {
     results[target] = await installTarget({ ...config, target });
   }
+  results.envExample = await installEnvExample(config);
   return results;
+}
+
+/**
+ * Copies the bundled .env.example (full commented placeholder reference) to
+ * <projectDir>/.sf-ai-pack.env.example, so users get a documented reference
+ * even if they never ran `init-config`. Follows the same merge-strategy
+ * semantics as template files.
+ */
+export async function installEnvExample({ projectDir, mergeStrategy, dryRun }) {
+  const result = { written: [], skipped: [], backedUp: [] };
+  const destPath = resolveWithinRoot(projectDir, ENV_EXAMPLE_DEST_NAME);
+  const exists = await fileExists(destPath);
+
+  if (exists) {
+    if (mergeStrategy === "skip") {
+      result.skipped.push(ENV_EXAMPLE_DEST_NAME);
+      return result;
+    }
+    if (mergeStrategy === "fail") {
+      throw new Error(
+        `File already exists and merge-strategy is "fail": ${ENV_EXAMPLE_DEST_NAME}`,
+      );
+    }
+    if (mergeStrategy === "backup") {
+      if (!dryRun) await backupExisting(destPath);
+      result.backedUp.push(ENV_EXAMPLE_DEST_NAME);
+    }
+    // "overwrite" falls through to the copy below.
+  }
+
+  if (!dryRun) {
+    const content = await fs.readFile(ENV_EXAMPLE_SOURCE, "utf8");
+    await writeFileEnsuringDir(destPath, content);
+  }
+  result.written.push(ENV_EXAMPLE_DEST_NAME);
+  return result;
 }

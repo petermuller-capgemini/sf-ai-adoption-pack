@@ -19,6 +19,10 @@ export const DEFAULT_PLACEHOLDERS = {
   EXTERNAL_INTEGRATIONS: "None",
   CICD_TOOL: "GitHub Actions",
   WORK_ITEM_TOOL: "GitHub Issues",
+  CONTACT_EMAIL: "admin@example.com",
+  COMPANY_DOMAIN: "example.com",
+  ORG_ALIAS: "my-org",
+  SITE_NAME: "my-site",
 };
 
 export const VALID_TARGETS = ["github", "claude", "both"];

@@ -2,7 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { installTarget, runInstall } from "../src/install.js";
+import {
+  installTarget,
+  runInstall,
+  installEnvExample,
+} from "../src/install.js";
 import { DEFAULT_PLACEHOLDERS } from "../src/constants.js";
 import {
   makeTempDir,
@@ -226,6 +230,46 @@ test("runInstall with target=both installs github and claude trees", async () =>
     });
     assert.ok(results.github.written.length > 0);
     assert.ok(results.claude.written.length > 0);
+  } finally {
+    await cleanup(projectDir);
+  }
+});
+
+test("runInstall always writes a .sf-ai-pack.env.example reference file", async () => {
+  const projectDir = await makeTempDir();
+  try {
+    const results = await runInstall({
+      target: "claude",
+      projectDir,
+      placeholders: DEFAULT_PLACEHOLDERS,
+      mergeStrategy: "skip",
+      dryRun: false,
+    });
+    assert.deepEqual(results.envExample.written, [".sf-ai-pack.env.example"]);
+    const content = await readFileIfExists(
+      path.join(projectDir, ".sf-ai-pack.env.example"),
+    );
+    assert.match(content, /TARGET=both/);
+    assert.match(content, /APEX_PREFIX=/);
+  } finally {
+    await cleanup(projectDir);
+  }
+});
+
+test("installEnvExample respects merge-strategy skip on repeated install", async () => {
+  const projectDir = await makeTempDir();
+  try {
+    await writeFile(projectDir, ".sf-ai-pack.env.example", "MY CUSTOM NOTES");
+    const result = await installEnvExample({
+      projectDir,
+      mergeStrategy: "skip",
+      dryRun: false,
+    });
+    assert.deepEqual(result.skipped, [".sf-ai-pack.env.example"]);
+    const content = await readFileIfExists(
+      path.join(projectDir, ".sf-ai-pack.env.example"),
+    );
+    assert.equal(content, "MY CUSTOM NOTES");
   } finally {
     await cleanup(projectDir);
   }
