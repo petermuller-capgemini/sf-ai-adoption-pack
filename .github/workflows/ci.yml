@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit and integration tests
+        run: npm test
+
+      - name: Pack dry-run
+        run: npm pack --dry-run
+
+      - name: Build real tarball
+        run: npm pack
+
+      - name: Smoke test — install tarball into an isolated global prefix
+        run: |
+          mkdir -p "$RUNNER_TEMP/global-prefix"
+          TARBALL=$(ls ./*.tgz)
+          npm install --global --prefix "$RUNNER_TEMP/global-prefix" "./$TARBALL"
+          echo "$RUNNER_TEMP/global-prefix/bin" >> "$GITHUB_PATH"
+
+      - name: Smoke test — install target=github into a scratch project
+        run: |
+          SCRATCH="$RUNNER_TEMP/scratch-github"
+          mkdir -p "$SCRATCH"
+          sf-ai-pack install --project-dir "$SCRATCH" --target github --project-name "CI Smoke Test"
+          test -f "$SCRATCH/.github/copilot-instructions.md"
+          sf-ai-pack validate --project-dir "$SCRATCH" --target github
+
+      - name: Smoke test — install target=claude into a scratch project
+        run: |
+          SCRATCH="$RUNNER_TEMP/scratch-claude"
+          mkdir -p "$SCRATCH"
+          sf-ai-pack install --project-dir "$SCRATCH" --target claude --project-name "CI Smoke Test"
+          test -f "$SCRATCH/.claude/CLAUDE.md"
+          sf-ai-pack validate --project-dir "$SCRATCH" --target claude
+
+      - name: Smoke test — install target=both, then repeat to verify idempotency
+        run: |
+          SCRATCH="$RUNNER_TEMP/scratch-both"
+          mkdir -p "$SCRATCH"
+          echo "pre-existing unrelated file" > "$SCRATCH/README.md"
+          sf-ai-pack install --project-dir "$SCRATCH" --target both --project-name "CI Smoke Test"
+          sf-ai-pack install --project-dir "$SCRATCH" --target both --project-name "CI Smoke Test"
+          test -f "$SCRATCH/.github/copilot-instructions.md"
+          test -f "$SCRATCH/.claude/CLAUDE.md"
+          test "$(cat "$SCRATCH/README.md")" = "pre-existing unrelated file"
+          sf-ai-pack validate --project-dir "$SCRATCH" --target both
+
+      - name: Smoke test — install over existing target folders does not clobber custom content
+        run: |
+          SCRATCH="$RUNNER_TEMP/scratch-existing"
+          mkdir -p "$SCRATCH/.claude"
+          echo "MY CUSTOM CONTENT" > "$SCRATCH/.claude/CLAUDE.md"
+          sf-ai-pack install --project-dir "$SCRATCH" --target claude --merge-strategy skip
+          test "$(cat "$SCRATCH/.claude/CLAUDE.md")" = "MY CUSTOM CONTENT"

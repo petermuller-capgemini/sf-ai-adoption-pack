@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sf org list *)",
+      "Bash(sf org display *)",
+      "Bash(sf project deploy *)",
+      "Bash(sf project retrieve *)",
+      "Bash(sf apex run test *)",
+      "Bash(sf apex get test *)",
+      "Bash(sf project deploy report *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash(sf project deploy start*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre-deploy-review.py",
+            "statusMessage": "Running pre-deploy quality gates (merge-conflict, IDOR, code-analyzer)..."
+          }
+        ]
+      }
+    ]
+  }
+}

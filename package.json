@@ -1,0 +1,43 @@
+{
+  "name": "@petermuller-capgemini/sf-ai-adoption-pack",
+  "version": "0.1.0",
+  "description": "CLI installer for Salesforce AI adoption packs (GitHub Copilot and Claude Code assets) into an existing Salesforce DX project.",
+  "author": "Peter Muller <peter.muller@capgemini.com>",
+  "type": "module",
+  "bin": {
+    "sf-ai-pack": "./bin/sf-ai-pack.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "pack:dry-run": "npm pack --dry-run"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/petermuller-capgemini/sf-ai-adoption-pack.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "license": "UNLICENSED",
+  "keywords": [
+    "salesforce",
+    "sfdx",
+    "github-copilot",
+    "claude-code",
+    "ai",
+    "adoption-pack",
+    "cli"
+  ]
+}

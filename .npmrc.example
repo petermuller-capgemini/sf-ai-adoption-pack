@@ -1,0 +1,8 @@
+# Copy to ~/.npmrc (user-level) to install @petermuller-capgemini packages from GitHub Packages.
+# Never commit a real token. Supply it through an environment variable only.
+#
+#   export GITHUB_PACKAGES_TOKEN="<a personal access token with read:packages scope>"
+#   npm install --global @petermuller-capgemini/sf-ai-adoption-pack
+
+@petermuller-capgemini:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}
