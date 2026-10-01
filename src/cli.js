@@ -154,8 +154,15 @@ async function handleValidate(rest) {
 
 function reportResults(results, config, verb) {
   for (const [target, result] of Object.entries(results)) {
+    if (target === "envExample") continue;
     console.log(
       `\n[${target}] ${verb}: ${result.written.length}, skipped: ${result.skipped.length}, backed up: ${result.backedUp.length}, merged: ${result.merged.length}`,
+    );
+  }
+  if (results.envExample) {
+    const env = results.envExample;
+    console.log(
+      `\n[.sf-ai-pack.env.example] ${verb}: ${env.written.length}, skipped: ${env.skipped.length}, backed up: ${env.backedUp.length}`,
     );
   }
   if (config.dryRun) console.log("(dry-run — no files were changed)");
