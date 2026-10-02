@@ -75,9 +75,7 @@ test("install writes .claude assets end to end and validate reports clean", asyn
     );
     assert.equal(install.code, 0, install.stderr);
 
-    const claudeMd = await readFileIfExists(
-      path.join(projectDir, ".claude", "CLAUDE.md"),
-    );
+    const claudeMd = await readFileIfExists(path.join(projectDir, "CLAUDE.md"));
     assert.ok(claudeMd.includes("Acme Corp"));
 
     const validate = await runCli(
@@ -144,9 +142,7 @@ test("update refreshes placeholder values even when a file already exists", asyn
     );
     assert.equal(update.code, 0, update.stderr);
 
-    const content = await readFileIfExists(
-      path.join(projectDir, ".claude", "CLAUDE.md"),
-    );
+    const content = await readFileIfExists(path.join(projectDir, "CLAUDE.md"));
     assert.ok(content.includes("New Name"));
     assert.ok(!content.includes("Old Name"));
   } finally {
@@ -184,9 +180,7 @@ test("update respects an explicit --merge-strategy skip even though its default 
       ],
       process.cwd(),
     );
-    const content = await readFileIfExists(
-      path.join(projectDir, ".claude", "CLAUDE.md"),
-    );
+    const content = await readFileIfExists(path.join(projectDir, "CLAUDE.md"));
     assert.ok(
       content.includes("Old Name"),
       "skip should preserve the previously installed content",
@@ -221,9 +215,7 @@ test("update ignores a stale MERGE_STRATEGY=skip persisted via init-config and s
       process.cwd(),
     );
     assert.equal(update.code, 0, update.stderr);
-    const content = await readFileIfExists(
-      path.join(projectDir, ".claude", "CLAUDE.md"),
-    );
+    const content = await readFileIfExists(path.join(projectDir, "CLAUDE.md"));
     assert.ok(
       content.includes("New Name"),
       "update must refresh despite stored MERGE_STRATEGY=skip",
@@ -280,9 +272,7 @@ test("works when the project path contains spaces", async () => {
       process.cwd(),
     );
     assert.equal(code, 0);
-    const content = await readFileIfExists(
-      path.join(spacedDir, ".claude", "CLAUDE.md"),
-    );
+    const content = await readFileIfExists(path.join(spacedDir, "CLAUDE.md"));
     assert.ok(content);
   } finally {
     await cleanup(base);

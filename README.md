@@ -94,6 +94,8 @@ npx @petermuller-capgemini/sf-ai-adoption-pack install \
 CLI argument  >  --env-file <path>  >  project .sf-ai-pack.env  >  built-in defaults
 ```
 
+Values passed as flags to `install` are also saved to `.sf-ai-pack.env` (created if missing, otherwise only those keys are updated or appended), so later `update` runs reuse them. `install` also adds `.claude/`, `.github/` and `CLAUDE.md` to `.gitignore`, and installs `CLAUDE.md` at the project root plus a `.env.example` reference.
+
 ### All CLI options
 
 | Flag                                                                                                 | Purpose                                                        |

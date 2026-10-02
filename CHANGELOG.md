@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- `CLAUDE.md` is now installed at the project root instead of `.claude/CLAUDE.md`.
+- The bundled env reference is installed as `.env.example` (was `.sf-ai-pack.env.example`).
+
+### Added
+
+- `install` writes values passed on the command line to `.sf-ai-pack.env`:
+  a new file is created with all resolved values; an existing file has only
+  the passed keys updated or appended, leaving other lines untouched.
+- `install` adds `.claude/`, `.github/` and `CLAUDE.md` (per target) to
+  `.gitignore`, creating it if needed and skipping entries already present.
+
 ## [0.2.0] - 2026-10-01
 
 ### Added
