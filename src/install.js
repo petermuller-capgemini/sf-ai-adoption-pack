@@ -5,11 +5,12 @@ import { listTemplateFiles, renderTemplateFile } from "./template.js";
 import { resolveWithinRoot } from "./security.js";
 import { mergeClaudeSettings } from "./claudeSettingsMerge.js";
 import { TARGET_DIRS } from "./constants.js";
+import { persistPreset, ensureGitignore } from "./preset.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const TEMPLATES_ROOT = path.join(__dirname, "..", "templates");
 const ENV_EXAMPLE_SOURCE = path.join(__dirname, "..", ".env.example");
-const ENV_EXAMPLE_DEST_NAME = ".sf-ai-pack.env.example";
+const ENV_EXAMPLE_DEST_NAME = ".env.example";
 
 export async function fileExists(targetPath) {
   try {
@@ -32,6 +33,18 @@ async function backupExisting(targetPath) {
   return backupPath;
 }
 
+// CLAUDE.md is installed at the project root; everything else goes under the
+// target's dot-directory.
+function destRelPathFor(target, relPath) {
+  if (target === "claude" && relPath === "CLAUDE.md") return relPath;
+  return path.join(TARGET_DIRS[target], relPath);
+}
+
+const GITIGNORE_ENTRIES = {
+  github: [".github/"],
+  claude: [".claude/", "CLAUDE.md"],
+};
+
 function isClaudeSettingsFile(target, relPath) {
   return target === "claude" && relPath === "settings.json";
 }
@@ -52,11 +65,10 @@ export async function installTarget({
     return result;
   }
 
-  const targetDir = TARGET_DIRS[target];
   const relFiles = await listTemplateFiles(templateRoot);
 
   for (const relPath of relFiles) {
-    const destRelPath = path.join(targetDir, relPath);
+    const destRelPath = destRelPathFor(target, relPath);
     const destPath = resolveWithinRoot(projectDir, destRelPath);
     const exists = await fileExists(destPath);
 
@@ -124,12 +136,26 @@ export async function runInstall(config) {
     results[target] = await installTarget({ ...config, target });
   }
   results.envExample = await installEnvExample(config);
+  results.preset = await persistPreset({
+    projectDir: config.projectDir,
+    values: {
+      ...(config.cliTarget ? { TARGET: config.cliTarget } : {}),
+      ...config.cliPlaceholders,
+    },
+    fullValues: { TARGET: config.target, ...config.placeholders },
+    dryRun: config.dryRun,
+  });
+  results.gitignore = await ensureGitignore({
+    projectDir: config.projectDir,
+    entries: targets.flatMap((t) => GITIGNORE_ENTRIES[t]),
+    dryRun: config.dryRun,
+  });
   return results;
 }
 
 /**
  * Copies the bundled .env.example (full commented placeholder reference) to
- * <projectDir>/.sf-ai-pack.env.example, so users get a documented reference
+ * <projectDir>/.env.example, so users get a documented reference
  * even if they never ran `init-config`. Follows the same merge-strategy
  * semantics as template files.
  */

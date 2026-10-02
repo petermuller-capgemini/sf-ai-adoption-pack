@@ -154,7 +154,7 @@ async function handleValidate(rest) {
 
 function reportResults(results, config, verb) {
   for (const [target, result] of Object.entries(results)) {
-    if (target === "envExample") continue;
+    if (["envExample", "preset", "gitignore"].includes(target)) continue;
     console.log(
       `\n[${target}] ${verb}: ${result.written.length}, skipped: ${result.skipped.length}, backed up: ${result.backedUp.length}, merged: ${result.merged.length}`,
     );
@@ -162,7 +162,23 @@ function reportResults(results, config, verb) {
   if (results.envExample) {
     const env = results.envExample;
     console.log(
-      `\n[.sf-ai-pack.env.example] ${verb}: ${env.written.length}, skipped: ${env.skipped.length}, backed up: ${env.backedUp.length}`,
+      `\n[.env.example] ${verb}: ${env.written.length}, skipped: ${env.skipped.length}, backed up: ${env.backedUp.length}`,
+    );
+  }
+  if (
+    results.preset &&
+    (results.preset.created ||
+      results.preset.added.length ||
+      results.preset.updated.length)
+  ) {
+    const p = results.preset;
+    console.log(
+      `\n[.sf-ai-pack.env] ${p.created ? "created" : "updated"}: ${p.updated.length} changed, ${p.added.length} added`,
+    );
+  }
+  if (results.gitignore && results.gitignore.added.length) {
+    console.log(
+      `\n[.gitignore] ${results.gitignore.created ? "created" : "updated"}: ${results.gitignore.added.join(", ")}`,
     );
   }
   if (config.dryRun) console.log("(dry-run — no files were changed)");

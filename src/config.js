@@ -65,5 +65,7 @@ export async function resolveConfig({
     mergeStrategy,
     dryRun: Boolean(cliArgs.dryRun),
     placeholders,
+    cliTarget: cliArgs.flags.target,
+    cliPlaceholders: { ...cliArgs.placeholders },
   };
 }
